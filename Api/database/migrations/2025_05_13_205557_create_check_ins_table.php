@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('check_ins', function (Blueprint $table) {
-            $table->ulid()->primary();
+            $table->ulid('id')->primary();
             $table->time('check_in_time')->comment('Hora de entrada');
             $table->time('check_out_time')->comment('Hora de saída');
             $table->date('check_date')->comment('Data do registro de ponto');
@@ -20,7 +20,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             $table->unique(['user_id', 'check_date'], 'unique_user_check_date');
-
         });
     }
 
