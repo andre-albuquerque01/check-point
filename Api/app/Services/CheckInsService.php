@@ -21,6 +21,7 @@ class CheckInsService implements CheckInsServiceInterface
     public function store(array $data)
     {
         try {
+            $data['user_id'] = Auth::user()->id;
             CheckIns::create($data);
             return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
