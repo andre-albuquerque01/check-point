@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Services;
 
 use App\Exceptions\GeneralExceptionCatch;
 use App\Http\Resources\UserResource;
@@ -18,7 +18,7 @@ class UserService implements UserServiceInterface
     {
         try {
             if (!Auth::attempt($data)) {
-                return response()->json(['message', 'E-mail or password invalid'], 401);
+                return response()->json(['message' => 'E-mail or password invalid'], 401);
             }
 
             $token = $this->request->user()->createToken('JesusIsKingOfKings', ['*'], now()->addHours(2))->plainTextToken;
@@ -32,7 +32,7 @@ class UserService implements UserServiceInterface
     {
         try {
             $this->request->user()->currentAccessToken()->delete();
-            return response()->json(['message', 'success'], 204);
+            return response()->json(['message' => 'success'], 204);
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: login');
         }
@@ -72,7 +72,7 @@ class UserService implements UserServiceInterface
             $data['password'] = $user->password;
 
             $user->update($data);
-            return response()->json(['message', 'success'], 201);
+            return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: user update');
         }
@@ -90,7 +90,7 @@ class UserService implements UserServiceInterface
             }
 
             $user->update($data);
-            return response()->json(['message', 'success'], 201);
+            return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: user update password');
         }
@@ -104,7 +104,7 @@ class UserService implements UserServiceInterface
             }
 
             $user->update($data);
-            return response()->json(['message', 'success'], 201);
+            return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: user update role');
         }
