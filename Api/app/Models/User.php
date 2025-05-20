@@ -59,4 +59,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(CheckIns::class);
     }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class);
+    }
 }
