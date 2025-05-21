@@ -6,8 +6,10 @@ use App\Exceptions\GeneralExceptionCatch;
 use App\Http\Resources\UserResource;
 use App\Interface\UserServiceInterface;
 use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserService implements UserServiceInterface
@@ -21,8 +23,19 @@ class UserService implements UserServiceInterface
                 return response()->json(['message' => 'E-mail or password invalid'], 401);
             }
 
-            $token = $this->request->user()->createToken('JesusIsKingOfKings', ['*'], now()->addHours(2))->plainTextToken;
+            $permissions = $this->capturePermissionUser();
+
+            $token = $this->request->user()->createToken(env('TOKEN_NAME'), $permissions, now()->addHours(2))->plainTextToken;
             return response()->json(['token' => $token], 200);
+        } catch (\Exception $e) {
+            throw new GeneralExceptionCatch('Error: login');
+        }
+    }
+
+    public function capturePermissionUser()
+    {
+        try {
+            return Auth::user()->permissions()->pluck('name')->toArray();
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: login');
         }
@@ -40,12 +53,18 @@ class UserService implements UserServiceInterface
 
     public function store(array $data)
     {
+        DB::beginTransaction();
         try {
             $data['password'] = Hash::make($data['password']);
-            User::create($data);
+            $user = User::create($data);
 
+            if (!isset($data['permissions']) && is_array($data['permissions'])) {
+                $user->permissions()->sync($data['permissions']);
+            }
+            DB::commit();
             return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
+            DB::rollBack();
             throw new GeneralExceptionCatch('Error: user create');
         }
     }
@@ -61,19 +80,31 @@ class UserService implements UserServiceInterface
 
     public function update(array $data)
     {
+        DB::beginTransaction();
         try {
             $user = User::where('id', Auth::user()->id)->first();
+
             if (!$user) {
                 return response()->json(['message' => 'user not found'], 404);
             }
+
             if (!Hash::check($data['password'], $user->password)) {
                 return response()->json(['message' => 'password incorrect'], 401);
             }
+
             $data['password'] = $user->password;
 
             $user->update($data);
+
+            if (!empty($data['permissions']) && is_array($data['permissions'])) {
+                $user->permissions()->sync($data['permissions']);
+            }
+
+            DB::commit();
+
             return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
+            DB::rollBack();
             throw new GeneralExceptionCatch('Error: user update');
         }
     }
