@@ -9,5 +9,6 @@ interface UserServiceInterface
     public function show();
     public function update(array $data);
     public function updatePassword(array $data);
+    public function updateRoleUser(array $data, string $id);
     public function logout();
 }
