@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Permission;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,12 +39,14 @@ class UserTest extends TestCase
     public function test_register()
     {
         $userRole = UserRole::factory()->create();
+        $permissions = Permission::factory()->create();
         $data = [
             "name" => "John doe",
             "email" => "john.doe@example.com",
             "password" => $this->password,
             "password_confirmation" => $this->password,
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permissions' => [$permissions->id],
         ];
 
         $response = $this->post('/api/v1/user/register', $data);
@@ -53,12 +56,14 @@ class UserTest extends TestCase
     public function test_register_wrong_password()
     {
         $userRole = UserRole::factory()->create();
+        $permissions = Permission::factory()->create();
         $data = [
             'name' => 'John doe',
             'email' => 'john.doe@example.com',
             'password' => $this->password,
             'password_confirmation' => 'strongPassword1@1231254124',
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permissions' => [$permissions->id],
         ];
 
         $response = $this->post('/api/v1/user/register', $data);
