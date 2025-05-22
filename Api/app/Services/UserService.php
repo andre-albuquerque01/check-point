@@ -72,7 +72,7 @@ class UserService implements UserServiceInterface
     public function show()
     {
         try {
-            return new UserResource(User::with('role')->findOrFail(Auth::user()->id)->first());
+            return new UserResource(User::with(['role', 'permissions'])->findOrFail(Auth::user()->id)->first());
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: user show');
         }
