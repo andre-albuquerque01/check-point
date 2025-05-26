@@ -52,8 +52,7 @@ class UserRequest extends FormRequest
                     ->symbols()
                     ->uncompromised(),
             ],
-            'permissions' => 'required|array',
-            'permissions.*' => 'exists:permissions,id',
+            'permission' => 'required|in:admin,editor,viewer',
         ];
 
         if ($this->method() == 'PATCH' || $this->method() == 'PUT') {
@@ -83,7 +82,7 @@ class UserRequest extends FormRequest
             $rules["role_id"] = [
                 'nullable',
             ];
-            $rules["permissions"] = [
+            $rules["permission"] = [
                 'nullable',
             ];
         }
@@ -120,8 +119,7 @@ class UserRequest extends FormRequest
             "password_confirmation.min" => "A confirmação da senha deve ter pelo menos 8 caracteres.",
 
             'permission.required' => 'É necessário selecionar pelo menos uma permissão.',
-            'permission.array' => 'O formato das permissões selecionadas está inválido.',
-            'permission.*.exists' => 'Uma ou mais permissões selecionadas são inválidas.',
+            'permission.in' => 'A permissão selecionada é inválida. As opções válidas são: admin, editor ou viewer.',
         ];
     }
 }
