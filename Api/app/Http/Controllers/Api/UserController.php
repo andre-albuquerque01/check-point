@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthRequest;
+use App\Http\Requests\PermissionRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Requests\UserUpdatePasswordRequest;
 use App\Http\Requests\UserUpdateRoleRequest;
@@ -34,6 +35,11 @@ class UserController extends Controller implements UserControllerInterface
     {
         return $this->userService->updatePassword($request->validated());
     }
+    public function updatePermission(PermissionRequest $request, string $email)
+    {
+        return $this->userService->updatePermission($request->validated(), $email);
+    }
+
     public function updateRoleUser(UserUpdateRoleRequest $request, string $id)
     {
         return $this->userService->updateRoleUser($request->validated(), $id);
