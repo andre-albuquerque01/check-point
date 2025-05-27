@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Enum\PermissionEnum;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'permission',
         'role_id'
     ];
 
@@ -47,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'permission' => PermissionEnum::class,
         ];
     }
 
@@ -58,10 +61,5 @@ class User extends Authenticatable
     public function checkIns()
     {
         return $this->hasMany(CheckIns::class);
-    }
-
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class);
     }
 }
