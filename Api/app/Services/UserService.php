@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enum\PermissionEnum;
 use App\Exceptions\GeneralExceptionCatch;
 use App\Http\Resources\UserResource;
 use App\Interface\UserServiceInterface;
@@ -23,19 +24,8 @@ class UserService implements UserServiceInterface
                 return response()->json(['message' => 'E-mail or password invalid'], 401);
             }
 
-            $permissions = $this->capturePermissionUser();
-
-            $token = $this->request->user()->createToken(env('TOKEN_NAME'), $permissions, now()->addHours(2))->plainTextToken;
+            $token = $this->request->user()->createToken(env('TOKEN_NAME'), [$this->request->user()->permission->value], now()->addHours(2))->plainTextToken;
             return response()->json(['token' => $token], 200);
-        } catch (\Exception $e) {
-            throw new GeneralExceptionCatch('Error: login');
-        }
-    }
-
-    public function capturePermissionUser()
-    {
-        try {
-            return Auth::user()->permissions()->pluck('name')->toArray();
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: login');
         }
@@ -53,18 +43,13 @@ class UserService implements UserServiceInterface
 
     public function store(array $data)
     {
-        DB::beginTransaction();
         try {
             $data['password'] = Hash::make($data['password']);
-            $user = User::create($data);
+            $data['permission'] = $data['permission'] ?? PermissionEnum::VIEWER;
 
-            if (!isset($data['permissions']) && is_array($data['permissions'])) {
-                $user->permissions()->sync($data['permissions']);
-            }
-            DB::commit();
+            User::create($data);
             return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
             throw new GeneralExceptionCatch('Error: user create');
         }
     }
@@ -72,7 +57,7 @@ class UserService implements UserServiceInterface
     public function show()
     {
         try {
-            return new UserResource(User::with(['role', 'permissions'])->findOrFail(Auth::user()->id)->first());
+            return new UserResource(User::with(['role'])->findOrFail(Auth::user()->id)->first());
         } catch (\Exception $e) {
             throw new GeneralExceptionCatch('Error: user show');
         }
@@ -80,7 +65,6 @@ class UserService implements UserServiceInterface
 
     public function update(array $data)
     {
-        DB::beginTransaction();
         try {
             $user = User::where('id', Auth::user()->id)->first();
 
@@ -96,16 +80,27 @@ class UserService implements UserServiceInterface
 
             $user->update($data);
 
-            if (!empty($data['permissions']) && is_array($data['permissions'])) {
-                $user->permissions()->sync($data['permissions']);
+            return response()->json(['message' => 'success'], 201);
+        } catch (\Exception $e) {
+            throw new GeneralExceptionCatch('Error: user update');
+        }
+    }
+
+    public function updatePermission(array $data, string $email)
+    {
+        try {
+            $user = User::where('email', $email)->first();
+            if (!$user) {
+                return response()->json(['message' => 'user not found'], 404);
             }
 
-            DB::commit();
+            $permission = $data['permission'] ?? PermissionEnum::VIEWER;
+            $user->permission = $permission;
+            $user->save();
 
             return response()->json(['message' => 'success'], 201);
         } catch (\Exception $e) {
-            DB::rollBack();
-            throw new GeneralExceptionCatch('Error: user update');
+            throw new GeneralExceptionCatch('Error: user update permission');
         }
     }
 
