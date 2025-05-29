@@ -23,6 +23,7 @@ Route::prefix('v1')->group(function () {
             Route::put('update', [UserController::class, 'update']);
             Route::put('update/password', [UserController::class, 'updatePassword']);
             Route::put('update/role/{id}', [UserController::class, 'updateRoleUser']);
+            Route::put('update/permission/{email}', [UserController::class, 'updatePermission']);
         });
     });
 });
