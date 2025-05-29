@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Permission;
+use App\Enum\PermissionEnum;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,14 +39,13 @@ class UserTest extends TestCase
     public function test_register()
     {
         $userRole = UserRole::factory()->create();
-        $permissions = Permission::factory()->create();
         $data = [
             "name" => "John doe",
             "email" => "john.doe@example.com",
             "password" => $this->password,
             "password_confirmation" => $this->password,
             'role_id' => $userRole->id,
-            'permissions' => [$permissions->id],
+            'permission' => PermissionEnum::VIEWER->value,
         ];
 
         $response = $this->post('/api/v1/user/register', $data);
@@ -56,14 +55,12 @@ class UserTest extends TestCase
     public function test_register_wrong_password()
     {
         $userRole = UserRole::factory()->create();
-        $permissions = Permission::factory()->create();
         $data = [
             'name' => 'John doe',
             'email' => 'john.doe@example.com',
             'password' => $this->password,
             'password_confirmation' => 'strongPassword1@1231254124',
             'role_id' => $userRole->id,
-            'permissions' => [$permissions->id],
         ];
 
         $response = $this->post('/api/v1/user/register', $data);
@@ -142,6 +139,7 @@ class UserTest extends TestCase
             'password_old' => $this->password . '22',
             'password' => $this->password . '1',
             'password_confirmation' => $this->password . '1',
+
         ];
 
         $response = $this->putJson('/api/v1/user/update/password',  $data, [
@@ -182,6 +180,41 @@ class UserTest extends TestCase
         ];
 
         $response = $this->putJson('/api/v1/user/update/role/14',  $data, [
+            'Authorization' => "Bearer $token",
+        ]);
+        $response->assertStatus(404);
+    }
+    public function test_update_permission()
+    {
+        $userRole = UserRole::factory()->create();
+        $token = $this->login();
+        $user = User::factory()->create([
+            'email' => 'john.doe2@example.com',
+            'password' => $this->password,
+            'role_id' => $userRole->id
+        ]);
+
+        $data = [
+            'permission' => PermissionEnum::ADMIN
+        ];
+
+        $response = $this->putJson('/api/v1/user/update/permission/' . $user->email,  $data, [
+            'Authorization' => "Bearer $token",
+        ]);
+        $response->assertStatus(201)
+            ->assertJson(['message' => 'success']);
+    }
+
+    public function test_update_permission_with_wrong_user()
+    {
+        $userRole = UserRole::factory()->create();
+        $token = $this->login();
+
+        $data = [
+            'permission' => PermissionEnum::ADMIN
+        ];
+
+        $response = $this->putJson('/api/v1/user/update/permission/54545',  $data, [
             'Authorization' => "Bearer $token",
         ]);
         $response->assertStatus(404);
