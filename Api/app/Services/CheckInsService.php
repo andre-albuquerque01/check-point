@@ -45,7 +45,7 @@ class CheckInsService implements CheckInsServiceInterface
     public function showStaff()
     {
         try {
-            $checkins = CheckIns::with(['user.permissions'])->where('user_id', Auth::user()->id)->get();
+            $checkins = CheckIns::with('user')->where('user_id', Auth::user()->id)->get();
             if (!$checkins) {
                 return response()->json(['message' => 'checkins not found'], 404);
             }
