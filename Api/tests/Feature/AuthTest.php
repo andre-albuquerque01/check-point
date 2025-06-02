@@ -18,7 +18,8 @@ class AuthTest extends TestCase
         User::factory()->create([
             'email' => 'john.doe@example.com',
             'password' => 'strongPassword@1231254124',
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permission' => 'admin'
         ]);
 
         $credentials = [
@@ -36,7 +37,8 @@ class AuthTest extends TestCase
         User::factory()->create([
             'email' => 'john.doe@example.com',
             'password' => 'strongPassword@1231254124',
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permission' => 'admin'
         ]);
 
         $credentials = [
