@@ -19,7 +19,8 @@ class RoleTest extends TestCase
         User::factory()->create([
             'email' => 'john.doe@example.com',
             'password' => $this->password,
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permission' => 'admin'
         ]);
 
         $credentials = [
