@@ -20,7 +20,8 @@ class CheckInsTest extends TestCase
         User::factory()->create([
             'email' => 'john.doe@example.com',
             'password' => $this->password,
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permission' => 'admin'
         ]);
 
         $credentials = [
@@ -65,7 +66,8 @@ class CheckInsTest extends TestCase
         $user = User::factory()->create([
             'email' => 'john.doe2@example.com',
             'password' => $this->password,
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permission' => 'admin'
         ]);
 
         $checkIns = CheckIns::factory()->create([
@@ -99,7 +101,8 @@ class CheckInsTest extends TestCase
         $user = User::factory()->create([
             'email' => 'john.doe@example.com',
             'password' => $this->password,
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permission' => 'admin'
         ]);
 
         $credentials = [
@@ -202,7 +205,8 @@ class CheckInsTest extends TestCase
         $user = User::factory()->create([
             'email' => 'john.doe2@example.com',
             'password' => $this->password,
-            'role_id' => $userRole->id
+            'role_id' => $userRole->id,
+            'permission' => 'admin'
         ]);
 
         $checkIns = CheckIns::factory()->create([
